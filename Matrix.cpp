@@ -189,7 +189,7 @@ Matrix Matrix::hadamard(const Matrix& other) const
 {
     if (rows_ != other.rows_ || cols_ != other.cols_)
     {
-        throw std::invalid_argument(
+        throw invalid_argument(
             "Hadamard product error: Matrix dimensions must match."
         );
     }
@@ -208,7 +208,7 @@ Matrix Matrix::hadamard(const Matrix& other) const
 }
 
 // Instead of rewriting the loops every time, write them once.
-Matrix Matrix::apply(const std::function<double(double)>& func) const
+Matrix Matrix::apply(const function<double(double)>& func) const
 {
     Matrix result(rows_, cols_);
 

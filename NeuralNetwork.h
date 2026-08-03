@@ -1,0 +1,25 @@
+#pragma once
+
+#include <vector>
+
+#include "DenseLayer.h"
+#include "Activation.h"
+#include "ActivationType.h"
+
+using namespace std;
+
+class NeuralNetwork
+{
+private:
+
+    vector<DenseLayer> layers;
+    vector<ActivationType> activations;
+
+public:
+
+    NeuralNetwork() = default;
+
+    void addLayer(size_t inputNeurons, size_t outputNeurons, ActivationType activation);
+    
+    Matrix forward(const Matrix& X) const;
+};

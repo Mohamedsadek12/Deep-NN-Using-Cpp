@@ -53,8 +53,7 @@ Matrix Matrix::random(size_t rows, size_t cols)
 {
     Matrix result(rows, cols);
 
-    random_device rd; // obtain a random number
-    mt19937 gen(rd()); // seed the generator
+    static mt19937 gen(std::random_device{}()); // Mersenne Twister random number generator
 
     uniform_real_distribution<double> dist(-1.0, 1.0); // define the range
 

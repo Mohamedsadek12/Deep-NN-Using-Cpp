@@ -10,7 +10,7 @@ void NeuralNetwork::addLayer(size_t inputNeurons, size_t outputNeurons, Activati
     activations.push_back(activation);
 }
 
-Matrix NeuralNetwork::forward(const Matrix& X) const
+Matrix NeuralNetwork::forward(const Matrix& X)
 {
     Matrix A = X;
 
@@ -34,4 +34,9 @@ Matrix NeuralNetwork::forward(const Matrix& X) const
         }
     }
     return A;
+}
+
+void NeuralNetwork::backward(const Matrix& y_true, const Matrix& y_pred, double learningRate)
+{
+    
 }

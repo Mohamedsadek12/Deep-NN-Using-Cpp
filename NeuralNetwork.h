@@ -21,5 +21,6 @@ public:
 
     void addLayer(size_t inputNeurons, size_t outputNeurons, ActivationType activation);
     
-    Matrix forward(const Matrix& X) const;
+    Matrix forward(const Matrix& X);
+    void backward(const Matrix& y_true, const Matrix& y_pred, double learningRate);
 };

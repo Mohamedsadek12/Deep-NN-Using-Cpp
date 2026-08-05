@@ -39,7 +39,11 @@ public:
 
     Matrix transpose() const;
     
+    // Matrix Multiplication
     Matrix matmul(const Matrix& other) const;
+    Matrix matmulSerial(const Matrix& other) const;
+    Matrix matmulOpenMP(const Matrix& other) const;
+    
     double sum() const;
     Matrix hadamard(const Matrix& other) const;
     Matrix apply(const std::function<double(double)>& func) const;

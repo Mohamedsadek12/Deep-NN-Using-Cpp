@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <functional>
+#include <omp.h>
 
 using namespace std;
 
@@ -137,9 +138,9 @@ Matrix Matrix::transpose() const
 
 
 // Matrix Multiplication
-Matrix Matrix::matmul(const Matrix& other) const
+
+Matrix Matrix::matmulSerial(const Matrix& other) const
 {
-    // Check if multiplication is possible
     if (cols_ != other.rows_)
     {
         throw invalid_argument(
@@ -148,25 +149,64 @@ Matrix Matrix::matmul(const Matrix& other) const
         );
     }
 
+    Matrix B = other.transpose();
     Matrix result(rows_, other.cols_, 0.0);
 
-    for (size_t i = 0; i < rows_; i++)
+    for (size_t i = 0; i < rows_; ++i)
     {
-        for (size_t j = 0; j < other.cols_; j++)
+        for (size_t j = 0; j < other.cols(); ++j)
         {
             double sum = 0.0;
 
-            // Compute dot product
-            for (size_t k = 0; k < cols_; k++)
+            for (size_t k = 0; k < cols_; ++k)
             {
-                sum += (*this)(i, k) * other(k, j);
+                sum += (*this)(i, k) * B(j, k);
             }
 
             result(i, j) = sum;
         }
     }
+
     return result;
 }
+
+Matrix Matrix::matmul(const Matrix& other) const
+{
+    return matmulSerial(other);
+}
+
+Matrix Matrix::matmulOpenMP(const Matrix& other) const
+{
+    if (cols_ != other.rows_)
+    {
+        throw invalid_argument(
+            "Matrix multiplication error: Number of columns of the first matrix "
+            "must equal the number of rows of the second matrix."
+        );
+    }
+
+    Matrix B = other.transpose();
+    Matrix result(rows_, other.cols_, 0.0);
+
+    #pragma omp parallel for
+    for (int i = 0; i < static_cast<int>(rows_); ++i)
+    {
+        for (size_t j = 0; j < other.cols(); ++j)
+        {
+            double sum = 0.0;
+
+            for (size_t k = 0; k < cols_; ++k)
+            {
+                sum += (*this)(static_cast<size_t>(i), k) * B(j, k);
+            }
+
+            result(static_cast<size_t>(i), j) = sum;
+        }
+    }
+
+    return result;
+}
+
 
 double Matrix::sum() const
 {

@@ -107,7 +107,7 @@ namespace Loss
     }
 
 
-    Matrix Loss::binaryCrossEntropyGradient(const Matrix& y_true, const Matrix& y_pred)
+    Matrix binaryCrossEntropyGradient(const Matrix& y_true, const Matrix& y_pred)
     {
         if (y_true.rows() != y_pred.rows() || y_true.cols() != y_pred.cols())
         {
@@ -137,7 +137,7 @@ namespace Loss
     }
 
 
-    Matrix Loss::meanSquaredErrorGradient(const Matrix& y_true, const Matrix& y_pred)
+    Matrix meanSquaredErrorGradient(const Matrix& y_true, const Matrix& y_pred)
     {
         Matrix dA(y_true.rows(), y_true.cols());
 
@@ -154,7 +154,7 @@ namespace Loss
         return dA;
     }
 
-    Matrix Loss::meanAbsoluteErrorGradient(const Matrix& y_true, const Matrix& y_pred)
+    Matrix meanAbsoluteErrorGradient(const Matrix& y_true, const Matrix& y_pred)
     {
         Matrix dA(y_true.rows(), y_true.cols());
 

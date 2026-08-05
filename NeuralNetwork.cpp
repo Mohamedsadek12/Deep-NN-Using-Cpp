@@ -41,7 +41,12 @@ void NeuralNetwork::backward(const Matrix& y_true, const Matrix& y_pred, double 
 {
     Matrix dA = Loss::binaryCrossEntropyGradient(y_true, y_pred);
 
-    for(int i = layers.size() - 1; i >= 0; i--)
+    if (layers.empty())
+    {
+        return;
+    }
+
+    for(int i = static_cast<int>(layers.size()) - 1; i >= 0; i--)
     {
         Matrix dZ;
         switch (activations[i])

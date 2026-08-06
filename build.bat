@@ -31,7 +31,8 @@ g++ ^
 -Wnull-dereference ^
 -O3 ^
 -fopenmp ^
-*.cpp ^
+-Iinclude ^
+src\*.cpp ^
 -o "%OUTPUT%"
 
 if %errorlevel% neq 0 (

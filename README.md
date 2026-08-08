@@ -9,7 +9,6 @@ Built to explore how neural networks actually work under the hood, and to measur
 ![C++](https://img.shields.io/badge/C%2B%2B-17-blue?logo=cplusplus)
 ![OpenMP](https://img.shields.io/badge/Parallelism-OpenMP-orange)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 </div>
 

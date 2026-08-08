@@ -2,21 +2,31 @@
 setlocal
 
 REM ==========================================
-REM Create build directory if it doesn't exist
+REM Deep Neural Network - C++ Build Script
 REM ==========================================
-if not exist "build\Debug" (
-    mkdir "build\Debug"
-)
-
-REM ==========================================
-REM Output executable
-REM ==========================================
-set "OUTPUT=build\Debug\outDebug.exe"
 
 echo.
 echo ===========================
 echo Building DeepNN...
 echo ===========================
+
+REM ==========================================
+REM Create build directory
+REM ==========================================
+
+if not exist "build" (
+    mkdir "build"
+)
+
+REM ==========================================
+REM Output executable
+REM ==========================================
+
+set "OUTPUT=build\DeepNN.exe"
+
+REM ==========================================
+REM Compile
+REM ==========================================
 
 g++ ^
 -std=c++17 ^
@@ -35,6 +45,10 @@ g++ ^
 src\*.cpp ^
 -o "%OUTPUT%"
 
+REM ==========================================
+REM Check compilation result
+REM ==========================================
+
 if %errorlevel% neq 0 (
     echo.
     echo ===========================
@@ -43,10 +57,19 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
+REM ==========================================
+REM Build successful
+REM ==========================================
+
 echo.
 echo ===========================
 echo Build SUCCEEDED!
+echo ===========================
 echo Output: %OUTPUT%
 echo ===========================
+
+echo.
+echo To run the program:
+echo %OUTPUT%
 
 endlocal

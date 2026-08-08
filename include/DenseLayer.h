@@ -12,6 +12,7 @@ private:
     // forward pass variables
     Matrix A_prev;
     Matrix Z;
+    Matrix A;
 
     // backward pass variables
     Matrix dW;
@@ -29,6 +30,7 @@ public:
     // Getters
     const Matrix& getWeights() const;
     const Matrix& getBias() const;
-
     const Matrix& getZ() const;
+    void setActivation(const Matrix& activation);
+    const Matrix& getActivation() const;
 };

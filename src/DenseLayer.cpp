@@ -65,3 +65,13 @@ const Matrix& DenseLayer::getZ() const
 {
     return Z;
 }
+
+void DenseLayer::setActivation(const Matrix& activation)
+{
+    A = activation;
+}
+
+const Matrix& DenseLayer::getActivation() const
+{
+    return A;
+}

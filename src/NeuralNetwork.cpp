@@ -33,35 +33,44 @@ Matrix NeuralNetwork::forward(const Matrix& X)
             default:
                 throw invalid_argument("Unsupported activation function.");
         }
-    }
+        layers[i].setActivation(A);
+    }   
     return A;
 }
 
 void NeuralNetwork::backward(const Matrix& y_true, const Matrix& y_pred, double learningRate)
 {
-    Matrix dA = Loss::binaryCrossEntropyGradient(y_true, y_pred);
+    Matrix dA = y_pred - y_true;
 
     if (layers.empty())
     {
         return;
     }
 
-    for(int i = static_cast<int>(layers.size()) - 1; i >= 0; i--)
+    for (size_t i = layers.size(); i-- > 0;)
     {
         Matrix dZ;
-        switch (activations[i])
+
+        if (i == layers.size() - 1)
         {
-            case ActivationType::Sigmoid:
-                dZ = dA.hadamard(Activation::sigmoidDerivative(layers[i].getZ()));
-                break;
-            case ActivationType::ReLU:
-                dZ = dA.hadamard(Activation::reluDerivative(layers[i].getZ()));
-                break;
-            case ActivationType::Tanh:
-                dZ = dA.hadamard(Activation::tanhDerivative(layers[i].getZ()));
-                break;
-            default:
-                throw invalid_argument("Unsupported activation function.");
+            dZ = dA;
+        }
+        else
+        {
+            switch (activations[i])
+            {
+                case ActivationType::Sigmoid:
+                    dZ = dA.hadamard(Activation::sigmoidDerivative(layers[i].getZ()));
+                    break;
+                case ActivationType::ReLU:
+                    dZ = dA.hadamard(Activation::reluDerivative(layers[i].getZ()));
+                    break;
+                case ActivationType::Tanh:
+                    dZ = dA.hadamard(Activation::tanhDerivative(layers[i].getZ()));
+                    break;
+                default:
+                    throw invalid_argument("Unsupported activation function.");
+            }
         }
 
         dA = layers[i].backward(dZ, learningRate);
@@ -78,7 +87,14 @@ void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, 
 
         backward(y_true, y_pred, learningRate);
 
-        cout << "Epoch " << epoch + 1 << "  Loss = " << loss << endl;
+        if ((epoch + 1) % 1000 == 0)
+        {
+            cout << "Epoch "
+                << epoch + 1
+                << "  Loss = "
+                << loss
+                << endl;
+        }
     }
 }
 

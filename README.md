@@ -84,7 +84,6 @@ Deep-NN-Using-Cpp/
 - *(Optional, for benchmarking)* Python 3 with NumPy — used by `Test.py` for the C++ vs. Python comparison
 
 ---
-
 ## 🛠 Build & Run
 
 ### Windows
@@ -94,9 +93,12 @@ build.bat
 
 ### Linux / macOS
 ```bash
-g++ -std=c++17 -O3 -fopenmp -Wall -Wextra -Iinclude src/*.cpp -o DeepNN
-./DeepNN
+chmod +x build.sh
+./build.sh
+./build/DeepNN
 ```
+
+`build.sh` compiles with `-O3 -fopenmp` plus a strict warning set (`-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Wnull-dereference`, etc.) and drops the binary at `build/DeepNN`.
 
 ### Python Benchmark (optional comparison)
 ```bash
@@ -104,7 +106,6 @@ python Test.py
 ```
 
 > 💡 The `-fopenmp` flag is required to enable multi-threaded matrix operations. Omitting it will silently fall back to single-threaded execution.
-
 ---
 
 ## 📊 Matrix Multiplication Benchmark

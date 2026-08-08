@@ -180,12 +180,6 @@ Both implementations converge to **100% accuracy** on the XOR classification tas
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
 <div align="center">
 
 **⭐ If you found this project interesting, consider starring the repo!**

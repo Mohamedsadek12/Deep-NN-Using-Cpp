@@ -77,12 +77,10 @@ Matrix Matrix::operator+(const Matrix& other) const
 
     Matrix result(rows_, cols_);
 
-    for (size_t i = 0; i < rows_; i++)
+    const size_t size = data_.size();
+    for (size_t i = 0; i < size; ++i)
     {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            result(i, j) = (*this)(i, j) + other(i, j);
-        }
+        result.data_[i] = data_[i] + other.data_[i];
     }
 
     return result;
@@ -95,12 +93,10 @@ Matrix Matrix::operator-(const Matrix& other) const
 
     Matrix result(rows_, cols_);
 
-    for (size_t i = 0; i < rows_; i++)
+    const size_t size = data_.size();
+    for (size_t i = 0; i < size; ++i)
     {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            result(i, j) = (*this)(i, j) - other(i, j);
-        }
+        result.data_[i] = data_[i] - other.data_[i];
     }
 
     return result;
@@ -110,16 +106,40 @@ Matrix Matrix::operator*(double scalar) const
 {
     Matrix result(rows_, cols_);
 
-    for (size_t i = 0; i < rows_; i++)
+    const size_t size = data_.size();
+    for (size_t i = 0; i < size; ++i)
     {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            result(i, j) = (*this)(i, j) * scalar;
-        }
+
+        result.data_[i] = data_[i] * scalar;
+
     }
 
     return result;
 }
+
+// multiply each element of the matrix with the corresponding element of the other matrix
+Matrix Matrix::hadamard(const Matrix& other) const 
+{
+    if (rows_ != other.rows_ || cols_ != other.cols_)
+    {
+        throw invalid_argument(
+            "Hadamard product error: Matrix dimensions must match."
+        );
+    }
+
+    Matrix result(rows_, cols_);
+
+    const size_t size = data_.size();
+    for (size_t i = 0; i < size; ++i)
+    {
+
+        result.data_[i] = data_[i] * other.data_[i];
+
+    }
+
+    return result;
+}
+
 
 Matrix Matrix::transpose() const
 {
@@ -148,22 +168,19 @@ Matrix Matrix::matmulSerial(const Matrix& other) const
             "must equal the number of rows of the second matrix."
         );
     }
-
-    Matrix B = other.transpose();
+    
     Matrix result(rows_, other.cols_, 0.0);
 
     for (size_t i = 0; i < rows_; ++i)
     {
-        for (size_t j = 0; j < other.cols(); ++j)
+        for (size_t j = 0; j < cols_; ++j)
         {
-            double sum = 0.0;
+            const double a = data_[i * cols_ + j];
 
-            for (size_t k = 0; k < cols_; ++k)
+            for (size_t k = 0; k < other.cols_; ++k)
             {
-                sum += (*this)(i, k) * B(j, k);
+                result.data_[i * other.cols_ + k] += a * other.data_[j * other.cols_ + k];
             }
-
-            result(i, j) = sum;
         }
     }
 
@@ -185,65 +202,100 @@ Matrix Matrix::matmulOpenMP(const Matrix& other) const
         );
     }
 
-    Matrix B = other.transpose();
     Matrix result(rows_, other.cols_, 0.0);
 
-    #pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(rows_); ++i)
+    #pragma omp parallel for schedule(static)
+    for (long long i = 0; i < static_cast<long long>(rows_); ++i)
     {
-        for (size_t j = 0; j < other.cols(); ++j)
+        const size_t row = static_cast<size_t>(i);
+        for (size_t j = 0; j < cols_; ++j)
         {
-            double sum = 0.0;
+            const double a = data_[row * cols_ + j];
 
-            for (size_t k = 0; k < cols_; ++k)
+            for (size_t k = 0; k < other.cols_; ++k)
             {
-                sum += (*this)(static_cast<size_t>(i), k) * B(j, k);
+                result.data_[row * other.cols_ + k] += a * other.data_[j * other.cols_ + k];
             }
-
-            result(static_cast<size_t>(i), j) = sum;
         }
     }
 
     return result;
 }
+
+Matrix Matrix::matmulTranspose(const Matrix& other) const
+{
+    // this = W
+    // other = dZ
+    // Calculate: W^T × dZ
+
+    if (rows_ != other.rows_)
+    {
+        throw invalid_argument(
+            "Matrix multiplication error: Number of rows of the first matrix "
+            "must equal the number of rows of the second matrix."
+        );
+    }
+
+    Matrix result(cols_, other.cols_, 0.0);
+
+    for (size_t i = 0; i < cols_; ++i)
+    {
+        for (size_t j = 0; j < rows_; ++j)
+        {
+            const double a = data_[j * cols_ + i];
+            for (size_t k = 0; k < other.cols_; ++k)
+            {
+                result.data_[i * other.cols_ + k] += a * other.data_[j * other.cols_ + k];            
+            }
+        }
+    }
+
+    return result;
+}
+
+Matrix Matrix::matmulTransposeOpenMP(const Matrix& other) const
+{
+    if (rows_ != other.rows_)
+    {
+        throw invalid_argument(
+            "Matrix multiplication error: Number of rows of the first matrix "
+            "must equal the number of rows of the second matrix."
+        );
+    }
+
+    Matrix result(cols_, other.cols_, 0.0);
+
+    #pragma omp parallel for schedule(static)
+    for (long long i = 0; i < static_cast<long long>(cols_); ++i)
+    {
+        const size_t col = static_cast<size_t>(i);
+
+        for (size_t j = 0; j < rows_; ++j)
+        {
+            const double a = data_[j * cols_ + col];
+
+            for (size_t k = 0; k < other.cols_; ++k)
+            {
+                result.data_[col * other.cols_ + k] += a * other.data_[j * other.cols_ + k];
+            }
+        }
+    }
+
+    return result;
+}
+
 
 
 double Matrix::sum() const
 {
     double total = 0.0;
 
-    for (size_t i = 0; i < rows_; i++)
+    for (double value : data_)
     {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            total += (*this)(i, j);
-        }
+        total += value;
     }
 
     return total;
-}
-
-// multiply each element of the matrix with the corresponding element of the other matrix
-Matrix Matrix::hadamard(const Matrix& other) const 
-{
-    if (rows_ != other.rows_ || cols_ != other.cols_)
-    {
-        throw invalid_argument(
-            "Hadamard product error: Matrix dimensions must match."
-        );
-    }
-
-    Matrix result(rows_, cols_);
-
-    for (size_t i = 0; i < rows_; i++)
-    {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            result(i, j) = (*this)(i, j) * other(i, j);
-        }
-    }
-
-    return result;
 }
 
 // Instead of rewriting the loops every time, write them once.
@@ -251,12 +303,10 @@ Matrix Matrix::apply(const function<double(double)>& func) const
 {
     Matrix result(rows_, cols_);
 
-    for (size_t i = 0; i < rows_; i++)
+    const size_t size = data_.size();
+    for (size_t i = 0; i < size; ++i)
     {
-        for (size_t j = 0; j < cols_; j++)
-        {
-            result(i, j) = func((*this)(i, j));
-        }
+        result.data_[i] = func(data_[i]);
     }
 
     return result;

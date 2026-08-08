@@ -41,7 +41,7 @@ Matrix DenseLayer::backward(const Matrix& dZ, double learningRate)
         db(i, 0) = sum / static_cast<double>(m);
     }
 
-    Matrix dA_prev = W.transpose().matmul(dZ);
+    Matrix dA_prev = W.matmulTransposeOpenMP(dZ);
 
     // Gradient descent update
     W = W - dW * learningRate;

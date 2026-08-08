@@ -1,17 +1,73 @@
-import numpy as np
 import time
+import numpy as np
 
-N = 1000
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
 
-np.random.seed(42)
 
-A = np.random.uniform(-1, 1, (N, N))
-B = np.random.uniform(-1, 1, (N, N))
+# XOR dataset
+X = np.array([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+], dtype=np.float64)
+
+y = np.array([
+    0,
+    1,
+    1,
+    0
+])
+
+
+# Same architecture:
+# C++: 2 -> 4 -> 1
+#
+# tanh -> sigmoid
+model = MLPClassifier(
+    hidden_layer_sizes=(4,),
+    activation="tanh",
+    solver="sgd",
+    learning_rate_init=0.1,
+    max_iter=10000,
+    random_state=42
+)
+
+
+# -----------------------------
+# Training
+# -----------------------------
 
 start = time.perf_counter()
 
-C = A @ B
+model.fit(X, y)
 
 end = time.perf_counter()
 
-print(f"NumPy Time: {end-start:.6f} s")
+training_time = end - start
+
+
+# -----------------------------
+# Prediction
+# -----------------------------
+
+predictions = model.predict(X)
+
+accuracy = accuracy_score(y, predictions)
+
+
+# -----------------------------
+# Results
+# -----------------------------
+
+print("\n===========================")
+print("Python Neural Network")
+print("===========================")
+
+print(f"Training Time: {training_time:.6f} seconds")
+
+print("\nPredictions:")
+print(predictions)
+
+print(f"\nAccuracy: {accuracy * 100:.2f}%")

@@ -43,6 +43,8 @@ public:
     Matrix matmul(const Matrix& other) const;
     Matrix matmulSerial(const Matrix& other) const;
     Matrix matmulOpenMP(const Matrix& other) const;
+    Matrix matmulTranspose(const Matrix& other) const;
+    Matrix matmulTransposeOpenMP(const Matrix& other) const;
     
     double sum() const;
     Matrix hadamard(const Matrix& other) const;

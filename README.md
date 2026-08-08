@@ -27,10 +27,13 @@ A major focus of the project is comparing a custom C++ implementation against Py
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
+```text
 Deep-NN-Using-Cpp/
+│
 ├── include/
+│   ├── .gitkeep
 │   ├── Activation.h
 │   ├── ActivationType.h
 │   ├── DenseLayer.h
@@ -39,6 +42,7 @@ Deep-NN-Using-Cpp/
 │   └── NeuralNetwork.h
 │
 ├── src/
+│   ├── .gitkeep
 │   ├── Activation.cpp
 │   ├── DeepNN.cpp
 │   ├── DenseLayer.cpp
@@ -50,4 +54,3 @@ Deep-NN-Using-Cpp/
 ├── README.md
 ├── Test.py
 └── .gitignore
-

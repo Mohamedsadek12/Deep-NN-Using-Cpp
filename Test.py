@@ -13,18 +13,10 @@ X = np.array([
     [1, 1]
 ], dtype=np.float64)
 
-y = np.array([
-    0,
-    1,
-    1,
-    0
-])
+y = np.array([0, 1, 1, 0])
 
 
-# Same architecture:
-# C++: 2 -> 4 -> 1
-#
-# tanh -> sigmoid
+# Same architecture as the C++ implementation
 model = MLPClassifier(
     hidden_layer_sizes=(4,),
     activation="tanh",
@@ -35,37 +27,26 @@ model = MLPClassifier(
 )
 
 
-# -----------------------------
 # Training
-# -----------------------------
-
 start = time.perf_counter()
-
 model.fit(X, y)
-
 end = time.perf_counter()
 
 training_time = end - start
 
 
-# -----------------------------
 # Prediction
-# -----------------------------
-
 predictions = model.predict(X)
 
 accuracy = accuracy_score(y, predictions)
 
 
-# -----------------------------
 # Results
-# -----------------------------
-
-print("\n===========================")
+print("\n===================")
 print("Python Neural Network")
-print("===========================")
+print("=====================")
 
-print(f"Training Time: {training_time:.6f} seconds")
+print(f"Training Time: {training_time:.3f} seconds")
 
 print("\nPredictions:")
 print(predictions)

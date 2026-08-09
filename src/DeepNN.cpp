@@ -9,7 +9,7 @@ using namespace std::chrono;
 
 int main()
 {
-    // XOR dataset
+    // XOR
     Matrix X(2, 4);
 
     X(0, 0) = 0.0;
@@ -31,7 +31,7 @@ int main()
     y(0, 2) = 1.0;
     y(0, 3) = 0.0;
 
-    // Same architecture as your previous test
+    
     NeuralNetwork nn;
 
     nn.addLayer(2, 4, ActivationType::Tanh);
@@ -40,23 +40,16 @@ int main()
     const size_t epochs = 10000;
     const double learningRate = 0.1;
 
-    // -----------------------------
     // Training
-    // -----------------------------
-
     auto start = high_resolution_clock::now();
 
     nn.train(X, y, epochs, learningRate);
 
     auto end = high_resolution_clock::now();
 
-    double trainingTime =
-        duration<double>(end - start).count();
+    double trainingTime = duration<double>(end - start).count();
 
-    // -----------------------------
     // Prediction
-    // -----------------------------
-
     Matrix predictions = nn.predict(X);
 
     size_t correct = 0;
@@ -69,21 +62,14 @@ int main()
         }
     }
 
-    double accuracy =
-        100.0 * static_cast<double>(correct) /
-        static_cast<double>(y.cols());
+    double accuracy = 100.0 * static_cast<double>(correct) / static_cast<double>(y.cols());
 
-    // -----------------------------
-    // Results
-    // -----------------------------
 
-    cout << "\n===========================\n";
+    cout << "\n================\n";
     cout << "C++ Neural Network\n";
-    cout << "===========================\n";
+    cout << "==================\n";
 
-    cout << "Training Time: "
-         << trainingTime
-         << " seconds\n";
+    cout << "Training Time: " << trainingTime << " seconds\n";
 
     cout << "\nPredictions:\n";
 
@@ -92,9 +78,7 @@ int main()
         cout << static_cast<int>(predictions(0, i)) << " ";
     }
 
-    cout << "\n\nAccuracy: "
-         << accuracy
-         << "%\n";
+    cout << "\nAccuracy: " << accuracy << endl;
 
     return 0;
 }

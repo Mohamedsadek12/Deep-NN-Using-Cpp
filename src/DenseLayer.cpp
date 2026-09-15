@@ -10,8 +10,10 @@ Matrix DenseLayer::forward(const Matrix& input)
 {
     A_prev = input;
 
+    // Z = W * A_prev
     Z = W.matmul(A_prev);
 
+    // Add bias
     for (size_t i = 0; i < Z.rows(); i++)
     {
         for (size_t j = 0; j < Z.cols(); j++)
@@ -24,7 +26,7 @@ Matrix DenseLayer::forward(const Matrix& input)
 }
 
 
-Matrix DenseLayer::backward(const Matrix& dZ, double learningRate)
+Matrix DenseLayer::backward(const Matrix& dZ)
 {
     size_t m = A_prev.cols(); // number of examples
 
@@ -41,11 +43,8 @@ Matrix DenseLayer::backward(const Matrix& dZ, double learningRate)
         db(i, 0) = sum / static_cast<double>(m);
     }
 
+    // dA_prev = W^T * dZ
     Matrix dA_prev = W.matmulTransposeOpenMP(dZ);
-
-    // Gradient descent update
-    W = W - dW * learningRate;
-    b = b - db * learningRate;
     
     return dA_prev;
 }
@@ -74,4 +73,25 @@ void DenseLayer::setActivation(const Matrix& activation)
 const Matrix& DenseLayer::getActivation() const
 {
     return A;
+}
+
+const Matrix& DenseLayer::getWeightGradient() const
+{
+    return dW;
+}
+
+const Matrix& DenseLayer::getBiasGradient() const
+{
+    return db;
+}
+
+Matrix& DenseLayer::getWeights()
+{
+    return W;
+}
+
+
+Matrix& DenseLayer::getBias()
+{
+    return b;
 }

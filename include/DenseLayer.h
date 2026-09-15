@@ -19,18 +19,26 @@ private:
     Matrix db;
 
 public:
-    DenseLayer(size_t inputSize, size_t outputSize);
+    DenseLayer(size_t prevLayerSize, size_t currentLayerSize);
 
     // Forward (Linear only)
     Matrix forward(const Matrix& input);
 
     // Backward
-    Matrix backward(const Matrix& dZ, double learningRate);
+    Matrix backward(const Matrix& dZ);
+
+    
+    // Mutable access for Optimizer
+    Matrix& getWeights();
+    Matrix& getBias();
 
     // Getters
     const Matrix& getWeights() const;
     const Matrix& getBias() const;
     const Matrix& getZ() const;
-    void setActivation(const Matrix& activation);
     const Matrix& getActivation() const;
+    const Matrix& getWeightGradient() const;
+    const Matrix& getBiasGradient() const;
+
+    void setActivation(const Matrix& activation);
 };

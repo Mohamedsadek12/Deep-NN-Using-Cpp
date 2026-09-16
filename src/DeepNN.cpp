@@ -10,7 +10,7 @@ using namespace std::chrono;
 
 // Test one optimizer
 void testOptimizer(const string& optimizerName, OptimizerType optimizerType, double learningRate,
-    const Matrix& X, const Matrix& y, size_t epochs, size_t batchSize)
+    const Matrix& X, const Matrix& y, size_t epochs, size_t batchSize, bool useDecay, double decayRate)
 {
     cout << "\n========================================\n";
     cout << "Testing: " << optimizerName << "\n";
@@ -26,7 +26,7 @@ void testOptimizer(const string& optimizerName, OptimizerType optimizerType, dou
 
     auto start = high_resolution_clock::now();
     // Train using mini-batches
-    nn.train(X, y, epochs, learningRate, batchSize);
+    nn.train(X, y, epochs, learningRate, batchSize, useDecay, decayRate);
     auto end = high_resolution_clock::now();
 
     double trainingTime = duration<double>(end - start).count();
@@ -88,10 +88,12 @@ int main()
 
     const size_t epochs = 10000;
     const size_t batchSize = 2;
+    const bool useDecay = true;
+    const double decayRate = 0.001;
 
-    testOptimizer("SGD", OptimizerType::SGD, 0.1, X, y, epochs, batchSize);
-    testOptimizer("Momentum", OptimizerType::Momentum, 0.1, X, y, epochs, batchSize);
-    testOptimizer("Adam", OptimizerType::Adam, 0.01, X, y, epochs, batchSize);
+    testOptimizer("SGD", OptimizerType::SGD, 0.1, X, y, epochs, batchSize, useDecay, decayRate);
+    testOptimizer("Momentum", OptimizerType::Momentum, 0.1, X, y, epochs, batchSize, useDecay, decayRate);
+    testOptimizer("Adam", OptimizerType::Adam, 0.01, X, y, epochs, batchSize, useDecay, decayRate);
 
     cout << "\n========================================\n";
     cout << "All optimizers tested successfully.\n";

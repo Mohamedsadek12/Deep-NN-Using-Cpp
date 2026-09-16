@@ -32,8 +32,17 @@ public:
     Matrix forward(const Matrix& X);
     void backward(const Matrix& y_true, const Matrix& y_pred);
 
-    void train(const Matrix& X, const Matrix& y_true, size_t epochs, double learningRate, size_t batchSize);
-    Matrix predict(const Matrix& X);
+    void train(
+        const Matrix& X, 
+        const Matrix& y_true, 
+        size_t epochs, 
+        double learningRate, 
+        size_t batchSize, 
+        bool useLearningRateDecay = false, 
+        double decayRate = 0.001
+    );
+    
+        Matrix predict(const Matrix& X);
 
     void setOptimizer(
         OptimizerType type, 

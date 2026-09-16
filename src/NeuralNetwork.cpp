@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <cmath>
 
 using namespace std;
 
@@ -113,7 +114,8 @@ void NeuralNetwork::backward(const Matrix& y_true, const Matrix& y_pred)
     }
 }
 
-void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, double learningRate, size_t batchSize)
+void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, double learningRate, 
+    size_t batchSize, bool useLearningRateDecay, double decayRate)
 {
     /*
         If the user didn't explicitly select an optimizer,
@@ -136,14 +138,14 @@ void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, 
             "Batch size must be greater than 0."
         );
     }
+    if (useLearningRateDecay && decayRate < 0.0)
+    {
+        throw invalid_argument("Decay rate cannot be negative");
+    }
 
     if (!optimizerSet)
     {
         setOptimizer(OptimizerType::SGD, learningRate);
-    }
-    else
-    {
-        optimizer.setLearningRate(learningRate);
     }
 
     // Random number generator (for shuffling the dataset)
@@ -160,6 +162,16 @@ void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, 
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
     {
+        // Learning Rate Decay
+        double currentLearningRate = learningRate;
+
+        if (useLearningRateDecay)
+        {
+            currentLearningRate = learningRate / (1.0 + decayRate * static_cast<double>(epoch));
+        }
+        
+        optimizer.setLearningRate(currentLearningRate);
+
         // Shuffle sample indices at the beginning of every epoch
         shuffle(indices.begin(), indices.end(), gen);
 

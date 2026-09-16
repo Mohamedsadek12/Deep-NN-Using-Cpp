@@ -204,6 +204,15 @@ Matrix Matrix::matmulOpenMP(const Matrix& other) const
 
     Matrix result(rows_, other.cols_, 0.0);
 
+    // Small matrices: serial multiplication is faster
+    const size_t operations = rows_ * cols_ * other.cols_;
+
+    if (operations < 10000)
+    {
+        return matmulSerial(other);
+    }
+
+    // Large matrices: use OpenMP
     #pragma omp parallel for schedule(static)
     for (long long i = 0; i < static_cast<long long>(rows_); ++i)
     {
@@ -265,6 +274,15 @@ Matrix Matrix::matmulTransposeOpenMP(const Matrix& other) const
 
     Matrix result(cols_, other.cols_, 0.0);
 
+    // Small matrices: serial multiplication is faster
+    const size_t operations = cols_ * rows_ * other.cols_;
+
+    if (operations < 10000)
+    {
+        return matmulTranspose(other);
+    }
+
+    // Large matrices: use OpenMP
     #pragma omp parallel for schedule(static)
     for (long long i = 0; i < static_cast<long long>(cols_); ++i)
     {

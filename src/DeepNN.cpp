@@ -10,10 +10,11 @@ using namespace std::chrono;
 
 // Test one optimizer
 void testOptimizer(const string& optimizerName, OptimizerType optimizerType, double learningRate,
-    const Matrix& X, const Matrix& y, size_t epochs)
+    const Matrix& X, const Matrix& y, size_t epochs, size_t batchSize)
 {
     cout << "\n========================================\n";
     cout << "Testing: " << optimizerName << "\n";
+    cout << "Mini-Batch Gradient Descent" << endl;
     cout << "========================================\n";
 
     NeuralNetwork nn;
@@ -24,8 +25,10 @@ void testOptimizer(const string& optimizerName, OptimizerType optimizerType, dou
     nn.setOptimizer(optimizerType, learningRate);
 
     auto start = high_resolution_clock::now();
-    nn.train(X, y, epochs, learningRate);
+    // Train using mini-batches
+    nn.train(X, y, epochs, learningRate, batchSize);
     auto end = high_resolution_clock::now();
+
     double trainingTime = duration<double>(end - start).count();
 
     Matrix predictions = nn.predict(X);
@@ -64,34 +67,31 @@ int main()
     // XOR
     Matrix X(2, 4);
 
+    X(0, 0) = 0;
+    X(1, 0) = 0;
 
-    X(0, 0) = 0.0;
-    X(1, 0) = 0.0;
+    X(0, 1) = 0;
+    X(1, 1) = 1;
 
-    X(0, 1) = 0.0;
-    X(1, 1) = 1.0;
+    X(0, 2) = 1;
+    X(1, 2) = 0;
 
-    X(0, 2) = 1.0;
-    X(1, 2) = 0.0;
+    X(0, 3) = 1;
+    X(1, 3) = 1;
 
-    X(0, 3) = 1.0;
-    X(1, 3) = 1.0;
-
-
-    // Target values
     Matrix y(1, 4);
 
-    y(0, 0) = 0.0;
-    y(0, 1) = 1.0;
-    y(0, 2) = 1.0;
-    y(0, 3) = 0.0;
-
+    y(0, 0) = 0;
+    y(0, 1) = 1;
+    y(0, 2) = 1;
+    y(0, 3) = 0;
 
     const size_t epochs = 10000;
+    const size_t batchSize = 2;
 
-    testOptimizer("SGD", OptimizerType::SGD, 0.1, X, y, epochs);
-    testOptimizer("Momentum", OptimizerType::Momentum, 0.1, X, y, epochs);
-    testOptimizer("Adam", OptimizerType::Adam, 0.01, X, y, epochs);
+    testOptimizer("SGD", OptimizerType::SGD, 0.1, X, y, epochs, batchSize);
+    testOptimizer("Momentum", OptimizerType::Momentum, 0.1, X, y, epochs, batchSize);
+    testOptimizer("Adam", OptimizerType::Adam, 0.01, X, y, epochs, batchSize);
 
     cout << "\n========================================\n";
     cout << "All optimizers tested successfully.\n";

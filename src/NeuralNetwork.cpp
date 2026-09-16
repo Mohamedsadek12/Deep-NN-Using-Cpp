@@ -3,6 +3,8 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -19,6 +21,22 @@ void NeuralNetwork::setOptimizer(OptimizerType type, double learningRate, double
     optimizerSet = true;
 }
 
+Matrix NeuralNetwork::createMiniBatch(const Matrix& data, size_t start, size_t batchSize) const
+{
+    size_t end = min(start + batchSize, data.cols());
+    size_t actualBatchSize = end - start;
+
+    Matrix batch(data.rows(), actualBatchSize);
+
+    for (size_t i = 0; i < data.rows(); ++i)
+    {
+        for (size_t j = 0; j < actualBatchSize; ++j)
+        {
+            batch(i, j) = data(i, start + j);
+        }
+    }
+    return batch;
+}
 
 Matrix NeuralNetwork::forward(const Matrix& X)
 {
@@ -95,12 +113,29 @@ void NeuralNetwork::backward(const Matrix& y_true, const Matrix& y_pred)
     }
 }
 
-void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, double learningRate)
+void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, double learningRate, size_t batchSize)
 {
     /*
         If the user didn't explicitly select an optimizer,
         use SGD with the supplied learning rate.
     */
+
+    if (X.cols() != y_true.cols())
+    {
+        throw invalid_argument("Input X and target y must have the same number of samples");
+    }
+
+    if (X.cols() == 0)
+    {
+        throw invalid_argument("Training data cannot be empty");
+    }
+
+    if (batchSize == 0)
+    {
+        throw invalid_argument(
+            "Batch size must be greater than 0."
+        );
+    }
 
     if (!optimizerSet)
     {
@@ -111,21 +146,76 @@ void NeuralNetwork::train(const Matrix& X, const Matrix& y_true, size_t epochs, 
         optimizer.setLearningRate(learningRate);
     }
 
+    // Random number generator (for shuffling the dataset)
+    random_device rd;
+    mt19937 gen(rd());
+
+    // Store sample indices
+    vector<size_t> indices(X.cols());
+
+    for (size_t i = 0; i < X.cols(); ++i)
+    {
+        indices[i] = i;
+    }
+
     for (size_t epoch = 0; epoch < epochs; ++epoch)
     {
-        // Forward propagation
-        Matrix y_pred = forward(X);
-        
-        // Calculate loss
-        double loss = Loss::binaryCrossEntropy(y_true, y_pred);
+        // Shuffle sample indices at the beginning of every epoch
+        shuffle(indices.begin(), indices.end(), gen);
 
-        // Backward propagation + optimizer update
-        backward(y_true, y_pred);
+        double epochLoss = 0.0;
+        size_t numberOfBatches = 0;
+
+        // Process the dataset batch by batch
+        for (size_t start = 0; start < X.cols(); start += batchSize)
+        {
+            size_t end = min(start + batchSize, X.cols());
+            size_t actualBatchSize = end - start;
+            
+            // Create mini-batches
+            Matrix X_batch = createMiniBatch(X, start, batchSize);
+            Matrix y_batch = createMiniBatch(y_true, start, batchSize);
+
+
+            // Create shuffled mini-batch
+            for (size_t i = 0; i < actualBatchSize; ++i)
+            {
+                size_t originalIndex = indices[start + i];
+
+                // Copy X sample
+                for (size_t row = 0; row < X.rows(); ++row)
+                {
+                    X_batch(row, i) = X(row, originalIndex);
+                }
+
+                // Copy corresponding y label
+                for (size_t row = 0; row < y_true.rows(); ++row)
+                {
+                    y_batch(row, i) = y_true(row, originalIndex);
+                }
+            }
+
+
+            // Forward propagation
+            Matrix y_pred = forward(X_batch);
+
+            // Calculate loss
+            double batchLoss = Loss::binaryCrossEntropy(y_batch, y_pred);
+
+            epochLoss += batchLoss;
+            ++numberOfBatches;
+
+            // Backward propagation + optimizer update
+            backward(y_batch, y_pred);
+        }
+        
+        // Average loss over all mini-batches
+        epochLoss /= static_cast<double>(numberOfBatches);
 
         // Print loss
         if ((epoch + 1) % 1000 == 0)
         {
-            cout << "Epoch " << epoch + 1 << "  Loss = " << loss << endl;
+            cout << "Epoch " << epoch + 1 << "  Loss = " << epochLoss << endl;
         }
     }
 }
